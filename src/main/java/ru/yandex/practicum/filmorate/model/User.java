@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
@@ -14,7 +13,6 @@ import java.time.LocalDate;
  */
 @Data
 @Builder
-@EqualsAndHashCode(of = {"email"})
 public class User {
     Long id;
     @Email

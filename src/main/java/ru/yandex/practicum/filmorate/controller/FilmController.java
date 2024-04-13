@@ -77,6 +77,8 @@ public class FilmController {
             // если фильм найден и все условия соблюдены, обновляем данные
             oldFilm.setName(newFilm.getName());
             oldFilm.setDescription(newFilm.getDescription());
+            oldFilm.setDuration(newFilm.getDuration());
+            oldFilm.setReleaseDate(newFilm.getReleaseDate());
             log.info("Фильм обновлен" + newFilm.getName());
             return oldFilm;
         }

@@ -32,6 +32,13 @@ class UserControllerTest {
     }
 
     @Test
+    void testCreateWithEmptyLogin() {
+        user.setLogin("");
+        assertThrows(ValidationException.class, () -> userController.create(user));
+
+    }
+
+    @Test
     void testCreateWithInvalidEmail() {
         user.setEmail("InvalidEmail");
         assertThrows(ValidationException.class, () -> userController.create(user));
@@ -42,4 +49,5 @@ class UserControllerTest {
         user.setBirthday(LocalDate.now().plusDays(1));
         assertThrows(ValidationException.class, () -> userController.create(user));
     }
+
 }

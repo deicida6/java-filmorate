@@ -31,19 +31,23 @@ public class UserController {
             log.info("Указан не корректный имейл");
             throw new ValidationException("Имейл должен быть указан");
         }
+        if (user.getLogin() == null || user.getLogin().isBlank()) {
+            log.info("Не указан логин");
+            throw new ValidationException("Логин пустой");
+        }
         if (user.getBirthday().isAfter(LocalDate.now())) {
             log.info("Не корректно указана дата рождения, она не может быть в будущем");
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
-        if (user.getName().isBlank()) {
-            log.info("Не задано имя пользователя, будет использован логин" + user.getLogin());
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
+            log.info("Не задано имя пользователя, будет использован логин " + user.getLogin());
         }
         // формируем дополнительные данные
         user.setId(getNextId());
         // сохраняем нового пользователя
         userMap.put(user.getId(), user);
-        log.info("Создан пользователь" + user.getLogin());
+        log.info("Создан пользователь " + user.getLogin());
         return user;
     }
 
@@ -59,16 +63,21 @@ public class UserController {
                 log.info("Указан не корректный имейл");
                 throw new ValidationException("Имейл должен быть указан");
             }
+            if (newUser.getLogin() == null || newUser.getLogin().isBlank()) {
+                log.info("Не указан логин");
+                throw new ValidationException("Логин пустой");
+            }
             if (newUser.getBirthday().isAfter(LocalDate.now())) {
                 log.info("Не корректно указана дата рождения, она не может быть в будущем");
                 throw new ValidationException("Дата рождения не может быть в будущем");
             }
-            if (newUser.getName().isBlank()) {
-                log.info("Не задано имя пользователя, будет использован логин" + newUser.getLogin());
+            if (newUser.getName() == null || newUser.getName().isBlank()) {
                 newUser.setName(newUser.getLogin());
+                log.info("Не задано имя пользователя, будет использован логин " + newUser.getLogin());
             }
-            // если пользоватлеь найден и все условия соблюдены, обновляем данные
+            // если пользователь найден и все условия соблюдены, обновляем данные
             oldUser.setEmail(newUser.getEmail());
+            oldUser.setLogin(newUser.getLogin());
             oldUser.setName(newUser.getName());
             oldUser.setBirthday(newUser.getBirthday());
             log.info("Пользователь обновлен" + newUser.getLogin());
