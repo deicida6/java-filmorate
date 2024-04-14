@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.controller.validation.BeforeDate;
 
 import java.time.LocalDate;
 
@@ -14,12 +15,13 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class Film {
-    Long id;
-    @NotBlank
-    String name;
+    private Long id;
+    @NotBlank(message = "Название не может быть пустым")
+    private String name;
     @Size(max = 200)
-    String description;
-    LocalDate releaseDate;
+    private String description;
+    @BeforeDate
+    private LocalDate releaseDate;
     @Positive
-    Integer duration;
+    private Integer duration;
 }

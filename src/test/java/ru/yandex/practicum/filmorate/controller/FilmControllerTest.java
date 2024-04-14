@@ -1,20 +1,27 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
     FilmController filmController;
+    private Validator validator;
     Film film;
 
     @BeforeEach
     void setUp() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
         filmController = new FilmController();
         film = Film.builder()
                 .name("film1")
@@ -27,7 +34,8 @@ class FilmControllerTest {
     @Test
     void testCreateWithEmptyName() {
         film.setName("");
-        assertThrows(ValidationException.class, () -> filmController.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -35,18 +43,21 @@ class FilmControllerTest {
         film.setDescription("Это очень длинное описание фильма, которое должно превышать 200 символов," +
                 " в котором расписывается все тонкости сюжетной линии, " +
                 "хронология повествования и главное под какие снэки стоит смотреть этот фильм");
-        assertThrows(ValidationException.class, () -> filmController.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
     }
 
     @Test
     public void testCreateWithInvalidReleaseDate() {
         film.setReleaseDate(LocalDate.of(1800,1,1));
-        assertThrows(ValidationException.class, () -> filmController.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
     }
 
     @Test
     public void testCreateWithNegativeDuration() {
         film.setDuration(-1);
-        assertThrows(ValidationException.class, () -> filmController.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
     }
 }

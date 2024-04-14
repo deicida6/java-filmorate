@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,18 +26,6 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.info("Указан не корректный имейл");
-            throw new ValidationException("Имейл должен быть указан");
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.info("Не указан логин");
-            throw new ValidationException("Логин пустой");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.info("Не корректно указана дата рождения, она не может быть в будущем");
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
             log.info("Не задано имя пользователя, будет использован логин " + user.getLogin());
@@ -59,18 +46,6 @@ public class UserController {
         }
         if (userMap.containsKey(newUser.getId())) {
             User oldUser = userMap.get(newUser.getId());
-            if (newUser.getEmail() == null || newUser.getEmail().isBlank() || !newUser.getEmail().contains("@")) {
-                log.info("Указан не корректный имейл");
-                throw new ValidationException("Имейл должен быть указан");
-            }
-            if (newUser.getLogin() == null || newUser.getLogin().isBlank()) {
-                log.info("Не указан логин");
-                throw new ValidationException("Логин пустой");
-            }
-            if (newUser.getBirthday().isAfter(LocalDate.now())) {
-                log.info("Не корректно указана дата рождения, она не может быть в будущем");
-                throw new ValidationException("Дата рождения не может быть в будущем");
-            }
             if (newUser.getName() == null || newUser.getName().isBlank()) {
                 newUser.setName(newUser.getLogin());
                 log.info("Не задано имя пользователя, будет использован логин " + newUser.getLogin());
