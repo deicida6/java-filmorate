@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.controller.validation.AfterDate;
 
 import java.time.LocalDate;
 
@@ -14,11 +15,13 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class User {
-    Long id;
+    private Long id;
     @Email
-    String email;
+    private String email;
     @NotBlank(message = "Login не должен быть пустым")
-    String login;
-    String name;
-    LocalDate birthday;
+    private String login;
+    private String name;
+    @AfterDate
+    private LocalDate birthday;
 }
+
