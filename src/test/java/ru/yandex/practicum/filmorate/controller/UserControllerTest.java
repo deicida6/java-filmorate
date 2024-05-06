@@ -23,7 +23,6 @@ class UserControllerTest {
     void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-        userController = new UserController();
         user = User.builder()
                 .email("email@mail.ru")
                 .login("login1")

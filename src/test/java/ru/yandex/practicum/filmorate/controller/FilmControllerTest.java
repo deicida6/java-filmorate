@@ -14,7 +14,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
-    FilmController filmController;
     private Validator validator;
     Film film;
 
@@ -22,7 +21,6 @@ class FilmControllerTest {
     void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-        filmController = new FilmController();
         film = Film.builder()
                 .name("film1")
                 .description("descriptionFilm1")

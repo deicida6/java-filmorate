@@ -4,24 +4,25 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    private final Map<Long, User> userMap = new HashMap<>();
+    private final InMemoryUserStorage userStorage;
+    private final UserService userService;
 
     @GetMapping
     public Collection<User> findAll() {
-        return userMap.values();
+        return userStorage.getAllUsers();
     }
 
     @PostMapping
@@ -30,10 +31,7 @@ public class UserController {
             user.setName(user.getLogin());
             log.info("Не задано имя пользователя, будет использован логин " + user.getLogin());
         }
-        // формируем дополнительные данные
-        user.setId(getNextId());
-        // сохраняем нового пользователя
-        userMap.put(user.getId(), user);
+        userStorage.createUser(user);
         log.info("Создан пользователь " + user.getLogin());
         return user;
     }
@@ -44,8 +42,8 @@ public class UserController {
             log.info("не указан Id при поиске пользователя");
             throw new ValidationException("Id должен быть указан");
         }
-        if (userMap.containsKey(newUser.getId())) {
-            User oldUser = userMap.get(newUser.getId());
+        if (userStorage.getUser(newUser.getId()) != null) {
+            User oldUser = userStorage.getUser(newUser.getId());
             if (newUser.getName() == null || newUser.getName().isBlank()) {
                 newUser.setName(newUser.getLogin());
                 log.info("Не задано имя пользователя, будет использован логин " + newUser.getLogin());
@@ -61,12 +59,39 @@ public class UserController {
         throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
     }
 
-    private long getNextId() {
-        long currentMaxId = userMap.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userStorage.getUser(id);
     }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        if (userStorage.getUser(id) == null || userStorage.getUser(friendId) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        userService.addToFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        if (userStorage.getUser(id) == null || userStorage.getUser(friendId) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        userService.removeFromFriends(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getUserFriendsList(@PathVariable Long id) {
+        if (userStorage.getUser(id) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        return userService.getUsersFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+
 }

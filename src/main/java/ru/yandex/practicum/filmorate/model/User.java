@@ -4,15 +4,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.controller.validation.AfterDate;
+import org.springframework.validation.annotation.Validated;
+import ru.yandex.practicum.filmorate.validation.AfterDate;
 
 import java.time.LocalDate;
+import java.util.Set;
 
-
-/**
- * User.
- */
 @Data
+@Validated
 @Builder
 public class User {
     private Long id;
@@ -24,5 +23,14 @@ public class User {
     private String name;
     @AfterDate
     private LocalDate birthday;
+    private Set<Long> friends;
+
+    public void addFriend(Long id) {
+        friends.add(id);
+    }
+
+    public void removeFriend(Long id) {
+        friends.remove(id);
+    }
 }
 

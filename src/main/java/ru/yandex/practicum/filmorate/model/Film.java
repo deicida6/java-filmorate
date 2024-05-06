@@ -5,13 +5,11 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.controller.validation.BeforeDate;
+import ru.yandex.practicum.filmorate.validation.BeforeDate;
 
 import java.time.LocalDate;
+import java.util.Set;
 
-/**
- * Film.
- */
 @Data
 @Builder
 public class Film {
@@ -24,4 +22,13 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
+    private Set<Long> usersWhoLiked;
+
+    public void addLike(Long id) {
+        usersWhoLiked.add(id);
+    }
+
+    public void removeLike(Long id) {
+        usersWhoLiked.remove(id);
+    }
 }
