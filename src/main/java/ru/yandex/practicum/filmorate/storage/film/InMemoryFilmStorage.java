@@ -16,7 +16,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void createFilm(Film film) {
         Set<Long> likes = new TreeSet<>();
-        film.setUsersWhoLiked(likes);
+        film.setLikes(likes);
         if (film.getId() == null) {
             film.setId(getNextId());
         }
@@ -40,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(Integer filmId) {
+    public void deleteFilm(Long filmId) {
         try {
             films.remove(filmId);
         } catch (NotFoundException ex) {

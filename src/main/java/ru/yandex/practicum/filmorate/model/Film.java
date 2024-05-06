@@ -22,13 +22,13 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
-    private Set<Long> usersWhoLiked;
+    private Set<Long> likes;
 
     public void addLike(Long id) {
-        usersWhoLiked.add(id);
+        likes.add(id);
     }
 
     public void removeLike(Long id) {
-        usersWhoLiked.remove(id);
+        likes.remove(id);
     }
 }

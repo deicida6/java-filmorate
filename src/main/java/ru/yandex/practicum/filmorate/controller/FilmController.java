@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -20,19 +18,17 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final InMemoryFilmStorage filmStorage;
     private final FilmService filmService;
-    private final InMemoryUserStorage userStorage;
 
     @GetMapping
     public Collection<Film> findAll() {
-        return filmStorage.getAllFilms();
+        return filmService.getAllFilms();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         // сохраняем новый фильм
-        filmStorage.createFilm(film);
+        filmService.createFilm(film);
         log.info("Новый фильм добавлен" + film.getName());
         return film;
     }
@@ -42,8 +38,8 @@ public class FilmController {
         if (newFilm.getId() == null) {
             throw new ValidationException("Id должен быть указан");
         }
-        if (filmStorage.getFilm(newFilm.getId()) != null) {
-            Film oldFilm = filmStorage.getFilm(newFilm.getId());
+        if (filmService.getFilm(newFilm.getId()) != null) {
+            Film oldFilm = filmService.getFilm(newFilm.getId());
             // если фильм найден и все условия соблюдены, обновляем данные
             oldFilm.setName(newFilm.getName());
             oldFilm.setDescription(newFilm.getDescription());
@@ -58,11 +54,11 @@ public class FilmController {
 
     @PutMapping("/{filmId}/like/{userId}")
     public void addLikeToFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-       if (filmStorage.getFilm(filmId) == null) {
+       if (filmService.getFilm(filmId) == null) {
            throw new NotFoundException("Фильм отсуствует");
-       } else if (userStorage.getUser(userId) == null) {
+       } else if (filmService.getUser(userId) == null) {
            throw new NotFoundException("Пользователь отсутсвует");
-       } else if (filmStorage.getFilm(filmId).getUsersWhoLiked().contains(userId)) {
+       } else if (filmService.getFilm(filmId).getLikes().contains(userId)) {
            throw new AlreadyExistsException("Пользователь уже поставил лайк");
        } else {
            filmService.addLikeToFilm(filmId, userId);
@@ -71,9 +67,9 @@ public class FilmController {
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void removeLikeFromFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        if (filmStorage.getFilm(filmId) == null) {
+        if (filmService.getFilm(filmId) == null) {
             throw new NotFoundException("Фильм с таким ID не найден!");
-        } else if (userStorage.getUser(userId) == null) {
+        } else if (filmService.getUser(userId) == null) {
             throw new NotFoundException("Пользователь с таким ID не найден!");
         } else {
             filmService.removeLikeToFilm(filmId, userId);

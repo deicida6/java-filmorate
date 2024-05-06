@@ -30,7 +30,16 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleAlreadyExistsException(final AlreadyExistsException e) {
         return new ErrorResponse(
-                "Возникло исключение",
+                "Объект уже существует",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handlerAnyException(final RuntimeException e) {
+        return new ErrorResponse(
+                "Внутренняя ошибка сервера",
                 e.getMessage()
         );
     }
