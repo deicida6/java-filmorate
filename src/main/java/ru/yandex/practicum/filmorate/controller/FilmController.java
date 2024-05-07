@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
+    private final UserService userService;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -56,7 +58,7 @@ public class FilmController {
     public void addLikeToFilm(@PathVariable Long filmId, @PathVariable Long userId) {
        if (filmService.getFilm(filmId) == null) {
            throw new NotFoundException("Фильм отсуствует");
-       } else if (filmService.getUser(userId) == null) {
+       } else if (userService.getUser(userId) == null) {
            throw new NotFoundException("Пользователь отсутсвует");
        } else if (filmService.getFilm(filmId).getLikes().contains(userId)) {
            throw new AlreadyExistsException("Пользователь уже поставил лайк");
@@ -69,7 +71,7 @@ public class FilmController {
     public void removeLikeFromFilm(@PathVariable Long filmId, @PathVariable Long userId) {
         if (filmService.getFilm(filmId) == null) {
             throw new NotFoundException("Фильм с таким ID не найден!");
-        } else if (filmService.getUser(userId) == null) {
+        } else if (userService.getUser(userId) == null) {
             throw new NotFoundException("Пользователь с таким ID не найден!");
         } else {
             filmService.removeLikeToFilm(filmId, userId);
