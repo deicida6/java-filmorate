@@ -24,6 +24,7 @@ public class User {
     @AfterDate
     private LocalDate birthday;
     private Set<Long> friends;
+    private boolean statusFriendship;
 
     public void addFriend(Long id) {
         friends.add(id);

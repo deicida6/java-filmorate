@@ -23,6 +23,8 @@ public class Film {
     @Positive
     private Integer duration;
     private Set<Long> likes;
+    private String genre;
+    private String mpa;
 
     public void addLike(Long id) {
         likes.add(id);
