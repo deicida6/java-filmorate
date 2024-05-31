@@ -3,15 +3,19 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.validation.BeforeDate;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @Data
+@Validated
 @Builder
+@NoArgsConstructor
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class Film {
     private Long id;
     @NotBlank(message = "Название не может быть пустым")
@@ -22,15 +26,8 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
-    private Set<Long> likes;
-    private String genre;
-    private String mpa;
-
-    public void addLike(Long id) {
-        likes.add(id);
-    }
-
-    public void removeLike(Long id) {
-        likes.remove(id);
-    }
+    private List<User> likes;
+    private List<Genre> genres;
+    @NonNull
+    private Mpa mpa;
 }

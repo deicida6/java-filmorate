@@ -4,12 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,67 +15,40 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final FilmService filmService;
-    private final UserService userService;
+    private final FilmService service;
 
     @GetMapping
     public Collection<Film> findAll() {
-        return filmService.getAllFilms();
+        return service.getAllFilms();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        // сохраняем новый фильм
-        filmService.createFilm(film);
-        log.info("Новый фильм добавлен" + film.getName());
-        return film;
+        return service.createFilm(film);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film newFilm) {
-        if (newFilm.getId() == null) {
-            throw new ValidationException("Id должен быть указан");
-        }
-        if (filmService.getFilm(newFilm.getId()) != null) {
-            Film oldFilm = filmService.getFilm(newFilm.getId());
-            // если фильм найден и все условия соблюдены, обновляем данные
-            oldFilm.setName(newFilm.getName());
-            oldFilm.setDescription(newFilm.getDescription());
-            oldFilm.setDuration(newFilm.getDuration());
-            oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            log.info("Фильм обновлен" + newFilm.getName());
-            return oldFilm;
-        }
-        log.info("Не найден фильм");
-        throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
+    public Film update(@Valid @RequestBody Film film) {
+        return service.updateFilm(film);
+    }
+
+    @GetMapping("/{filmId}")
+    public Film getFilm(@PathVariable Long filmId) {
+        return service.getFilm(filmId);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
     public void addLikeToFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-       if (filmService.getFilm(filmId) == null) {
-           throw new NotFoundException("Фильм отсуствует");
-       } else if (userService.getUser(userId) == null) {
-           throw new NotFoundException("Пользователь отсутсвует");
-       } else if (filmService.getFilm(filmId).getLikes().contains(userId)) {
-           throw new AlreadyExistsException("Пользователь уже поставил лайк");
-       } else {
-           filmService.addLikeToFilm(filmId, userId);
-       }
+           service.addLikeToFilm(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void removeLikeFromFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        if (filmService.getFilm(filmId) == null) {
-            throw new NotFoundException("Фильм с таким ID не найден!");
-        } else if (userService.getUser(userId) == null) {
-            throw new NotFoundException("Пользователь с таким ID не найден!");
-        } else {
-            filmService.removeLikeToFilm(filmId, userId);
-        }
+            service.removeLikeToFilm(filmId, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilmsList(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.getMostPopularFilms(count);
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Long count) {
+        return service.getPopularFilms(count);
     }
 }
