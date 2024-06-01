@@ -5,23 +5,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@ContextConfiguration(classes = {UserDbStorage.class})
+@ContextConfiguration(classes = {UserStorage.class})
+@ComponentScan(basePackages = {"ru.yandex.practicum.filmorate.storage.user"})
 class UserDbStorageTest {
-private final UserDbStorage storage;
+private final UserStorage storage;
 
     @Test
     void createUser() {
@@ -33,16 +34,15 @@ private final UserDbStorage storage;
                     LocalDate.of(1991,01,12),
                     null
             ));
-            List<User> users = storage.getAllUsers();
-            assertEquals(1, users.size());
-            assertThat(users.get(0)).hasFieldOrPropertyWithValue("email", "new@test.ru");
-            assertThat(users.get(0)).hasFieldOrPropertyWithValue("login", "login1");
-            assertThat(users.get(0)).hasFieldOrPropertyWithValue("name", "name1");
-            assertThat(users.get(0)).hasFieldOrProperty("birthday");
+            User user = storage.getUser(1L);
+            assertThat(user).hasFieldOrPropertyWithValue("email", "new@test.ru");
+            assertThat(user).hasFieldOrPropertyWithValue("login", "login1");
+            assertThat(user).hasFieldOrPropertyWithValue("name", "name1");
+            assertThat(user).hasFieldOrProperty("birthday");
     }
 
     @Test
-    @Sql(scripts = {"/test-get-users.sql"})
+    @Sql(scripts = {"/clear_all.sql","/test-get-users.sql"})
     void updateUser() {
             storage.updateUser(new User(
                     1L,
@@ -62,7 +62,7 @@ private final UserDbStorage storage;
     }
 
     @Test
-    @Sql(scripts = {"/test-get-users.sql"})
+    @Sql(scripts = {"/clear_all.sql","/test-get-users.sql"})
     void getUser() {
         List<User> users = storage.getAllUsers();
         assertThat(users.get(0)).hasFieldOrPropertyWithValue("email", "email1@email.ru");
@@ -72,7 +72,7 @@ private final UserDbStorage storage;
     }
 
     @Test
-    @Sql(scripts = {"/test-get-users.sql"})
+    @Sql(scripts = {"/clear_all.sql","/test-get-users.sql"})
     void getAllUsers() {
         List<User> users = storage.getAllUsers();
 

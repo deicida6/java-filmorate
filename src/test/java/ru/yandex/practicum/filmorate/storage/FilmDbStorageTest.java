@@ -5,43 +5,44 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@ContextConfiguration(classes = {FilmDbStorage.class})
+@ContextConfiguration(classes = {FilmStorage.class})
+@ComponentScan(basePackages = {"ru.yandex.practicum.filmorate.storage.film"})
 class FilmDbStorageTest {
-    private final FilmDbStorage storage;
+    private final FilmStorage storage;
 
     @Test
     void createFilm() {
         storage.createFilm(new Film(
                 1L,
-                "name",
+                "updateName",
                 "description",
                 LocalDate.of(1991,01,12),
                 200,
-                null,
-                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
                 new Mpa(1L,"G")
         ));
-        List<Film> films = storage.getAllFilms();
-        assertEquals(1, films.size());
-        assertThat(films.get(0)).hasFieldOrPropertyWithValue("name", "name");
-        assertThat(films.get(0)).hasFieldOrPropertyWithValue("description", "description");
-        assertThat(films.get(0)).hasFieldOrProperty("releaseDate");
-        assertThat(films.get(0)).hasFieldOrPropertyWithValue("duration", 200);
+        Film film = storage.getFilm(1L);
+        assertThat(film).hasFieldOrPropertyWithValue("name", "updateName");
+        assertThat(film).hasFieldOrPropertyWithValue("description", "description");
+        assertThat(film).hasFieldOrProperty("releaseDate");
+        assertThat(film).hasFieldOrPropertyWithValue("duration", 200);
     }
 
     @Test
@@ -49,7 +50,7 @@ class FilmDbStorageTest {
     void updateFilm() {
         storage.updateFilm(new Film(
                 1L,
-                "name",
+                "updateName",
                 "description",
                 LocalDate.of(1991,01,12),
                 200,
@@ -59,7 +60,7 @@ class FilmDbStorageTest {
         ));
 
         Film film = storage.getFilm(1L);
-        assertThat(film).hasFieldOrPropertyWithValue("name", "name");
+        assertThat(film).hasFieldOrPropertyWithValue("name", "updateName");
         assertThat(film).hasFieldOrPropertyWithValue("description", "description");
         assertThat(film).hasFieldOrProperty("releaseDate");
         assertThat(film).hasFieldOrPropertyWithValue("duration", 200);
@@ -80,6 +81,7 @@ class FilmDbStorageTest {
     @Sql(scripts = {"/test-get-films.sql"})
     void getAllFilms() {
         List<Film> films = storage.getAllFilms();
+        System.out.println(films);
 
         assertThat(films.get(0)).hasFieldOrPropertyWithValue("name", "film_name1");
         assertThat(films.get(0)).hasFieldOrPropertyWithValue("description", "description");

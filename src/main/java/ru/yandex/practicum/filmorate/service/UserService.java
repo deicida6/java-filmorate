@@ -13,7 +13,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserStorage storage;
 
     public User createUser(User user) {

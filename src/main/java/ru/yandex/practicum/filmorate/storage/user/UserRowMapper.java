@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-
 public class UserRowMapper implements RowMapper<User> {
     Map<Long, User> userMap = new HashMap<>();
 
@@ -36,6 +35,9 @@ public class UserRowMapper implements RowMapper<User> {
             if (!user.getFriends().contains(resultSet.getLong("USER2_ID"))) {
                 user.getFriends().add(resultSet.getLong("USER2_ID"));
             }
+        }
+        if (resultSet.isLast()) {
+            userMap.clear();
         }
 
         return user;

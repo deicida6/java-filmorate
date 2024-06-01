@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-
 public class FilmRowMapper implements RowMapper<Film> {
     Map<Long, Film> filmMap = new HashMap<>();
 
@@ -60,6 +59,9 @@ public class FilmRowMapper implements RowMapper<Film> {
                         .name(resultSet.getString("genre_name"))
                         .build());
             }
+        }
+        if (resultSet.isLast()) {
+            filmMap.clear();
         }
         return film;
     }
