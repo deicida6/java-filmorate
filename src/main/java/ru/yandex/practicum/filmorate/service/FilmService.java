@@ -7,9 +7,9 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
@@ -18,9 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final GenreDbStorage genreStorage;
-    private final MpaDbStorage mpaStorage;
-    private final UserDbStorage userStorage;
+    private final GenreStorage genreStorage;
+    private final MpaStorage mpaStorage;
+    private final UserStorage userStorage;
 
     public Film createFilm(Film film) {
         if (mpaStorage.getById(film.getMpa().getId()) == null) {
@@ -46,21 +46,14 @@ public class FilmService {
     }
 
     public Film getFilm(Long filmId) {
-        Film film = filmStorage.getFilm(filmId);
-        film.setLikes(filmStorage.getLikes(film.getId()));
-        film.setGenres(genreStorage.getGenresOfFilm(film.getId()));
-        film.setMpa(mpaStorage.getMpaOfFilm(filmId));
-        return film;
+        if (filmStorage.getFilm(filmId) != null) {
+            return filmStorage.getFilm(filmId);
+        }
+        throw new NotFoundException("Фильм с id = " + filmId + " не найден");
     }
 
     public List<Film> getAllFilms() {
-        List<Film> films = filmStorage.getAllFilms();
-        for (Film film : films) {
-            film.setLikes(filmStorage.getLikes(film.getId()));
-            film.setGenres(genreStorage.getGenresOfFilm(film.getId()));
-            film.setMpa(mpaStorage.getMpaOfFilm(film.getId()));
-        }
-        return films;
+        return filmStorage.getAllFilms();
     }
 
     public void addLikeToFilm(Long filmId, Long userId) {

@@ -38,17 +38,15 @@ public class UserService {
     }
 
     public User getUser(Long userId) {
-        User user = storage.getUser(userId);
-        user.setFriends(storage.getFriends(userId));
-        return user;
+        if (storage.getUser(userId) != null) {
+            return storage.getUser(userId);
+        }
+        throw new NotFoundException("Пользователь не найден с id = " + userId);
+
     }
 
     public List<User> getAllUsers() {
-        List<User> users = storage.getAllUsers();
-        for (User user : users) {
-            user.setFriends(storage.getFriends(user.getId()));
-        }
-        return users;
+        return storage.getAllUsers();
     }
 
     public void addToFriend(Long userId, Long friendId) {

@@ -12,7 +12,8 @@ import java.util.List;
 
 @Data
 @Validated
-@Builder
+@EqualsAndHashCode
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -26,7 +27,7 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
-    private List<User> likes;
+    private List<Long> likes;
     private List<Genre> genres;
     @NonNull
     private Mpa mpa;

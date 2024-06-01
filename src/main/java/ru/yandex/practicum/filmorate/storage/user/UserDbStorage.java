@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,8 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @AllArgsConstructor
 @Component
@@ -22,6 +20,7 @@ import java.util.Objects;
 @Primary
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserRowMapper mapper;
 
     @Override
     public User createUser(User user) {
@@ -58,16 +57,36 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUser(Long id) {
-       try {
-           return jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?", new DataClassRowMapper<>(User.class), id);
-       } catch (EmptyResultDataAccessException e) {
-           return null;
-       }
-    }
+            List<User> users = jdbcTemplate.query("SELECT " +
+                   "u.ID, " +
+                   "u.EMAIL, " +
+                   "u.LOGIN, " +
+                   "u.NAME, " +
+                   "u.BIRTHDAY, " +
+                   "f.USER2_ID " +
+                   "FROM USERS AS u " +
+                   "LEFT JOIN FRIENDS AS f ON (f.USER1_ID  = u.ID)" +
+                   "WHERE u.id = ?", mapper, id);
+            if (users.size() == 0) {
+                return null;
+            }
+            return users.get(0);
+           }
 
     @Override
     public List<User> getAllUsers() {
-        return jdbcTemplate.query("SELECT * FROM users", new DataClassRowMapper<>(User.class));
+        List<User> users = jdbcTemplate.query("SELECT " +
+                "u.ID, " +
+                "u.EMAIL, " +
+                "u.LOGIN, " +
+                "u.NAME, " +
+                "u.BIRTHDAY, " +
+                "f.USER2_ID " +
+                "FROM USERS u " +
+                "LEFT JOIN FRIENDS f ON (f.USER1_ID  = u.ID)", mapper);
+        Set<User> uniqueUser = new TreeSet<>(Comparator.comparing(User::getId));
+        uniqueUser.addAll(users);
+        return new ArrayList<>(uniqueUser);
     }
 
     @Override

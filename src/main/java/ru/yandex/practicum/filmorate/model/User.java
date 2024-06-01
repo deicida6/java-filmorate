@@ -11,7 +11,8 @@ import java.util.List;
 
 @Data
 @Validated
-@Builder
+@EqualsAndHashCode
+@Builder(toBuilder = true)
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -24,6 +25,6 @@ public class User {
     private String name;
     @AfterDate
     private LocalDate birthday;
-    private List<User> friends;
+    private List<Long> friends;
 }
 
